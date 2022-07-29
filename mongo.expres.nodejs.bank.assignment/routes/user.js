@@ -1,131 +1,38 @@
-const express=require("express")
-const router=express.Router()
-const Employee=require("../models/bankdetails.model")
+const express = require("express")
+const router = express.Router()
+const Employee = require("../models/bankdetails.model")
+const {welcome,alluser,finduser,balrangeuser,userid,newuser,updateuser,deleteuser} =require("../controller/user")
 
-router.get("/",(req,res)=>{
-    res.status(200).send(`welcome to the bank 	${"\uD83D\uDE00"}`)
-})
+// welcome route 
 
-router.get("/employeesdetails", async (req, res) => {
-    try {
-        const data = await Employee.find()
-        res.json(data)
-    } catch (err) {
-        res.send("Error" + err)
-    }
-})
+router.get("/",welcome)
 
-router.get("/fixedDeposit",async(req,res)=>{
-    try{
-        const FD =await Employee.find({fixedDeposit:false})
-        console.log(FD)
-        res.json(FD)
-    }catch(err){
-        console.log(err)
-        res.send("error"+err)
-    }
-})
+// this below will give data with the pagination concept having a page and limit
 
-router.get("/ltgt",async(req,res)=>{
-    try{
-        const ltgt =await Employee.find({balance:{$gt:80000,$lt:100000}})
-        console.log(ltgt)
-        res.json(ltgt)
-    }catch(err){
-        console.log(err)
-        res.send("error"+err)
-    }
-})
+router.get("/employeesdetails",alluser)
+
+// find employee provide the data according to bankname ,fixedDeposit,limit,sorting is done according to name
+router.get("/findemployee/",finduser)
+
+// employee having balance in range (lt=less than ,gt=greater than ) 
+router.get("/balancerange", balrangeuser)
+
+// this route will show the data according to id 
+
+router.get("/:id",userid)
+
+// this below route is used to post the data according to the schema 
+
+router.post("/employeesdetails", newuser)
+
+// below route will find the data according to id and update the parameters 
+
+router.patch("/:id", updateuser)
+
+// this route will delete the data according to the id & if balance is less than the given balance by the user 
+
+router.delete("/removebyid", deleteuser)
 
 
-router.get("/bankname",async(req,res)=>{
-    try{
-        const bankName =await Employee.find({bankname:"HSBC"})
-        console.log(bankName)
-        res.json(bankName)
-    }catch(err){
-        console.log(err)
-        res.send("error"+err)
-    }
-})
-
-router.get("/skip",async(req,res)=>{
-    try{
-        const skip =await Employee.find().skip(5)
-        console.log(skip)
-        res.json(skip)
-    }catch(err){
-        console.log(err)
-        res.send("error"+err)
-    }
-})
-
-router.get("/sort",async(req,res)=>{
-    try{
-        const sort =await Employee.find().sort({"name":1})
-        console.log(sort)
-        res.json(sort)
-    }catch(err){
-        console.log(err)
-        res.send("error"+err)
-    }
-})
-
-
-
-router.get("/:id", async (req, res) => {
-    try {
-        const data = await Employee.findById(req.params.id)
-        res.json(data)
-    } catch (err) {
-        res.send("Error" + err)
-    }
-})
-
-router.post("/employeesdetails", async (req, res) => {
-    const details = new Employee({
-        name: req.body.name,
-        account_no: req.body.account_no,
-        balance: req.body.balance,
-        fixedDeposit: req.body.fixedDeposit,
-        bankname: req.body.bankname,
-        address_of_person:req.body.address_of_person,
-        phoneno: req.body.phoneno
-    })
-    try {
-        const data1 = await details.save()
-        res.json(data1)
-    } catch (err) {
-        res.send("Error" + err)
-    }
-})
-
-router.patch("/:id", async (req, res) => {
-    try {
-        const data = await Employee.findById(req.params.id)
-        data.name=req.body.name,
-        data.balance= req.body.balance,
-        data.fixedDeposit= req.body.fixedDeposit,
-        data.bankname= req.body.bankname,
-        data.address_of_person=req.body.address_of_person
-
-        const response = await data.save()
-        res.json(response)
-    } catch (err) {
-        res.send("Error" + err)
-    }
-})
-
-
-router.delete("/remove", async (req, res) => {
-    try {
-        const data = await Employee.deleteOne({balance:{$lt:7000}})
-        res.json(data)
-    } catch (err) {
-        res.send("Error" + err)
-    }
-})
-
-
-module.exports=router
+module.exports = router
 
